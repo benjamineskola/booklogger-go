@@ -59,7 +59,7 @@ type Book struct {
 }
 
 func (Book) TableName() string {
-	return "library_book"
+	return "library_book" // notest
 }
 
 func NewBook(title string) Book {

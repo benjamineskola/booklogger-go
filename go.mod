@@ -8,8 +8,10 @@ require (
 )
 
 require (
-	github.com/daixiang0/gci v0.2.9 // indirect
-	github.com/esimonov/ifshort v1.0.3 // indirect
+	github.com/dave/astrid v0.0.0-20170323122508-8c2895878b14 // indirect
+	github.com/dave/brenda v1.1.0 // indirect
+	github.com/dave/courtney v0.3.0 // indirect
+	github.com/dave/patsy v0.0.0-20210517141501-957256f50cba // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.10.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -20,6 +22,9 @@ require (
 	github.com/jackc/pgx/v4 v4.13.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.2 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
+	golang.org/x/sys v0.0.0-20211113001501-0c823b97ae02 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/tools v0.1.7 // indirect
 )
