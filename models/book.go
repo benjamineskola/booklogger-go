@@ -63,8 +63,8 @@ func (Book) TableName() string {
 	return "library_book" // notest
 }
 
-func NewBook(title string) Book {
-	return Book{ //nolint:exhaustivestruct
+func NewBook(title string) *Book {
+	return &Book{ //nolint:exhaustivestruct
 		Title: title,
 	}
 }
