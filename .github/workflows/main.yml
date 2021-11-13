@@ -28,8 +28,6 @@ jobs:
           go install github.com/dave/courtney@latest
       - name: Run linters
         uses: golangci/golangci-lint-action@v2
-        with:
-          args: --enable-all --disable gci,maligned
       - name: Run tests
         run: |
           courtney -e -v

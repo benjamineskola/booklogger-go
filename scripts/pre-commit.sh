@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
-golangci-lint run --enable-all --disable gci,maligned
+golangci-lint run
 courtney -e
 go tool cover -func=coverage.out

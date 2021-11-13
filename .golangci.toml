@@ -1,0 +1,9 @@
+[linters]
+enable-all = true
+disable = [
+    "gci", # conflicts with gofumpt
+    "golint", # deprecated
+    "interfacer", # deprecated
+    "maligned", # deprecated
+    "scopelint", # deprecated
+  ]
