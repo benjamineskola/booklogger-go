@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           go get .
-          go install github.com/dave/courtney@latest
+          which courtney || go install github.com/dave/courtney@latest
       - name: Run linters
         uses: golangci/golangci-lint-action@v2
       - name: Run tests
