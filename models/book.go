@@ -73,5 +73,9 @@ func (book Book) String() string {
 }
 
 func (book Book) FullTitle() string {
+	if book.Subtitle != "" {
+		return book.Title + ": " + book.Subtitle
+	}
+
 	return book.Title
 }
