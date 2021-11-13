@@ -6,9 +6,10 @@ type Book struct {
 	ID                uint
 	Title             string
 	Subtitle          string
-	FirstAuthor       string
+	FirstAuthorID     uint
+	FirstAuthor       Author
 	FirstAuthorRole   string
-	AdditionalAuthors []string
+	AdditionalAuthors []Author `gorm:"many2many:library_bookauthor;"`
 	Slug              string
 
 	FirstPublished uint
