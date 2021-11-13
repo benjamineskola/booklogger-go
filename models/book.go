@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Book struct {
 	ID                uint
@@ -9,13 +11,13 @@ type Book struct {
 	FirstAuthorID     uint
 	FirstAuthor       Author
 	FirstAuthorRole   string
-	AdditionalAuthors []Author `gorm:"many2many:library_bookauthor;"`
+	AdditionalAuthors []Author `gorm:"many2many:library_bookauthor"`
 	Slug              string
 
 	FirstPublished uint
 	Language       string
 	Series         string
-	SeriesOrder    uint
+	SeriesOrder    float32
 
 	EditionPublished uint
 	Publisher        string
@@ -39,16 +41,16 @@ type Book struct {
 	ImageURL     string
 	PublisherURL string
 	WantToRead   string
-	Tags         []string
+	Tags         string
 	Review       string
-	Rating       uint
+	Rating       float32
 
 	HasEbookEdition   bool
 	EbookAcquiredDate time.Time
 	EbookAsin         string
 	EbookIsbn         string
 
-	Editions []*Book `gorm:"many2many:library_book_editions"`
+	Editions []*Book `gorm:"many2many:library_book_editions;joinForeignKey:FromBookID;joinReferences:ToBookID"`
 
 	ParentEditionID *uint
 	ParentEdition   *Book
