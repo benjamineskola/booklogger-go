@@ -69,10 +69,22 @@ func NewBook(title string) Book {
 }
 
 func (book Book) String() string {
-	return book.Title
+	return book.FullTitle()
 }
 
 func (book Book) FullTitle() string {
+	if book.EditionTitle != "" {
+		if book.EditionSubtitle != "" {
+			return book.EditionTitle + ": " + book.EditionSubtitle
+		}
+
+		return book.EditionTitle
+	}
+
+	return book.OriginalTitle()
+}
+
+func (book Book) OriginalTitle() string {
 	if book.Subtitle != "" {
 		return book.Title + ": " + book.Subtitle
 	}
