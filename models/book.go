@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type Book struct {
@@ -41,7 +43,7 @@ type Book struct {
 	ImageURL     string
 	PublisherURL string
 	WantToRead   string
-	Tags         string
+	Tags         pq.StringArray `gorm:"type:varchar(32)[]"`
 	Review       string
 	Rating       float32
 
