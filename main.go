@@ -31,6 +31,7 @@ func main() {
 	}
 
 	router.GET("/books.json", func(c *gin.Context) { controllers.BookList(c, database) })
+	router.GET("/books/:slug.json", func(c *gin.Context) { controllers.BookBySlug(c, database) })
 	router.GET("/authors.json", func(c *gin.Context) { controllers.AuthorList(c, database) })
 	log.Fatal(server.Run())
 }
