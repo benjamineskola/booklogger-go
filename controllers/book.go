@@ -3,7 +3,6 @@ package controllers
 import (
 	"booklogger/storage"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -16,7 +15,7 @@ func BookList(c *gin.Context, db *gorm.DB) {
 }
 
 func BookBySlug(ctx *gin.Context, database *gorm.DB) {
-	if slug := strings.TrimSuffix(ctx.Param("slug.json"), ".json"); slug != "" {
+	if slug := ctx.Param("slug"); slug != "" {
 		if book, err := storage.GetBookBySlug(database, slug); err == nil {
 			ctx.JSON(http.StatusOK, book)
 		} else {

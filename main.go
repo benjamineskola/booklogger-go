@@ -4,11 +4,26 @@ import (
 	"booklogger/controllers"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+func fixParamMiddleware(ctx *gin.Context) {
+	for n, param := range ctx.Params {
+		if strings.HasSuffix(param.Key, ".json") {
+			ctx.Params[n] = gin.Param{
+				Key:   strings.TrimSuffix(param.Key, ".json"),
+				Value: strings.TrimSuffix(param.Value, ".json"),
+			}
+			ctx.Params = append(ctx.Params, gin.Param{Key: "format", Value: "json"})
+		}
+	}
+
+	ctx.Next()
+}
 
 func main() {
 	dsn := os.Getenv("DATABASE_URL")
@@ -22,6 +37,7 @@ func main() {
 	}
 
 	server := gin.Default()
+	server.Use(fixParamMiddleware)
 	router := server.Group("/")
 
 	if os.Getenv("AUTH_USER") != "" && os.Getenv("AUTH_PASSWORD") != "" {
@@ -30,8 +46,14 @@ func main() {
 		}))
 	}
 
-	router.GET("/books.json", func(c *gin.Context) { controllers.BookList(c, database) })
-	router.GET("/books/:slug.json", func(c *gin.Context) { controllers.BookBySlug(c, database) })
-	router.GET("/authors.json", func(c *gin.Context) { controllers.AuthorList(c, database) })
+	handleWithDB := func(fun func(*gin.Context, *gorm.DB)) func(*gin.Context) {
+		return func(ctx *gin.Context) {
+			fun(ctx, database)
+		}
+	}
+
+	router.GET("/books.json", handleWithDB(controllers.BookList))
+	router.GET("/books/:slug.json", handleWithDB(controllers.BookBySlug))
+	router.GET("/authors.json", handleWithDB(controllers.AuthorList))
 	log.Fatal(server.Run())
 }
