@@ -21,7 +21,15 @@ func main() {
 		panic(err)
 	}
 
-	r := gin.Default()
-	r.GET("/books.json", func(c *gin.Context) { controllers.BookList(c, database) })
-	log.Fatal(r.Run())
+	server := gin.Default()
+	router := server.Group("/")
+
+	if os.Getenv("AUTH_USER") != "" && os.Getenv("AUTH_PASSWORD") != "" {
+		router = server.Group("/", gin.BasicAuth(gin.Accounts{
+			os.Getenv("AUTH_USER"): os.Getenv("AUTH_PASSWORD"),
+		}))
+	}
+
+	router.GET("/books.json", func(c *gin.Context) { controllers.BookList(c, database) })
+	log.Fatal(server.Run())
 }
