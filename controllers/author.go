@@ -2,14 +2,16 @@ package controllers
 
 import (
 	"booklogger/storage"
+	"encoding/json"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func AuthorList(c *gin.Context, db *gorm.DB) {
+func AuthorList(resp http.ResponseWriter, req *http.Request, db *gorm.DB) {
 	authors := storage.GetAllAuthors(db)
 
-	c.JSON(http.StatusOK, authors)
+	if err := json.NewEncoder(resp).Encode(authors); err != nil {
+		panic(err)
+	}
 }

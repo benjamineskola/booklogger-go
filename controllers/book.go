@@ -2,26 +2,37 @@ package controllers
 
 import (
 	"booklogger/storage"
+	"encoding/json"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
-func BookList(c *gin.Context, db *gorm.DB) {
+func BookList(resp http.ResponseWriter, req *http.Request, db *gorm.DB) {
 	books := storage.GetAllBooks(db)
-
-	c.JSON(http.StatusOK, books)
+	if err := json.NewEncoder(resp).Encode(books); err != nil {
+		panic(err)
+	}
 }
 
-func BookBySlug(ctx *gin.Context, database *gorm.DB) {
-	if slug := ctx.Param("slug"); slug != "" {
-		if book, err := storage.GetBookBySlug(database, slug); err == nil {
-			ctx.JSON(http.StatusOK, book)
+func BookBySlug(resp http.ResponseWriter, req *http.Request, database *gorm.DB) {
+	if slug := mux.Vars(req)["slug"]; slug != "" { //nolint:nestif
+		book, err := storage.GetBookBySlug(database, slug)
+		if err == nil {
+			if jsonErr := json.NewEncoder(resp).Encode(book); jsonErr != nil {
+				panic(jsonErr)
+			}
 		} else {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": err})
+			resp.WriteHeader(http.StatusNotFound)
+			if jsonErr := json.NewEncoder(resp).Encode(map[string]string{"error": err.Error()}); jsonErr != nil {
+				panic(jsonErr)
+			}
 		}
 	} else {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "no slug given"})
+		resp.WriteHeader(http.StatusBadRequest)
+		if jsonErr := json.NewEncoder(resp).Encode(map[string]string{"error": "no slug given"}); jsonErr != nil {
+			panic(jsonErr)
+		}
 	}
 }
