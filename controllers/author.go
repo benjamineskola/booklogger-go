@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	h "booklogger/http"
 	"booklogger/storage"
-	"encoding/json"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -10,8 +10,5 @@ import (
 
 func AuthorList(resp http.ResponseWriter, req *http.Request, db *gorm.DB) {
 	authors := storage.GetAllAuthors(db)
-
-	if err := json.NewEncoder(resp).Encode(authors); err != nil {
-		panic(err)
-	}
+	h.JSONResponse(resp, authors)
 }

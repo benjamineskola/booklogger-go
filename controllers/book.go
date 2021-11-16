@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	h "booklogger/http"
 	"booklogger/storage"
-	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,28 +11,18 @@ import (
 
 func BookList(resp http.ResponseWriter, req *http.Request, db *gorm.DB) {
 	books := storage.GetAllBooks(db)
-	if err := json.NewEncoder(resp).Encode(books); err != nil {
-		panic(err)
-	}
+	h.JSONResponse(resp, books)
 }
 
 func BookBySlug(resp http.ResponseWriter, req *http.Request, database *gorm.DB) {
-	if slug := mux.Vars(req)["slug"]; slug != "" { //nolint:nestif
+	if slug := mux.Vars(req)["slug"]; slug != "" {
 		book, err := storage.GetBookBySlug(database, slug)
 		if err == nil {
-			if jsonErr := json.NewEncoder(resp).Encode(book); jsonErr != nil {
-				panic(jsonErr)
-			}
+			h.JSONResponse(resp, book)
 		} else {
-			resp.WriteHeader(http.StatusNotFound)
-			if jsonErr := json.NewEncoder(resp).Encode(map[string]string{"error": err.Error()}); jsonErr != nil {
-				panic(jsonErr)
-			}
+			h.JSONError(resp, http.StatusNotFound, err.Error())
 		}
 	} else {
-		resp.WriteHeader(http.StatusBadRequest)
-		if jsonErr := json.NewEncoder(resp).Encode(map[string]string{"error": "no slug given"}); jsonErr != nil {
-			panic(jsonErr)
-		}
+		h.JSONError(resp, http.StatusBadRequest, "no slug given")
 	}
 }
