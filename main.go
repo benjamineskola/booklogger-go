@@ -17,22 +17,22 @@ func basicAuthMiddleware(next http.Handler) http.Handler {
 	expectedUser := os.Getenv("AUTH_USER")
 	expectedPass := os.Getenv("AUTH_PASSWORD")
 
+	if expectedUser == "" && expectedPass == "" {
+		return http.HandlerFunc(next.ServeHTTP)
+	}
+
 	return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
-		if expectedUser == "" && expectedPass == "" { //nolint:nestif
-			next.ServeHTTP(resp, req)
-		} else {
-			sentUser, sentPass, ok := req.BasicAuth()
-			if !ok || subtle.ConstantTimeCompare([]byte(sentUser), []byte(expectedUser)) != 1 ||
-				subtle.ConstantTimeCompare([]byte(sentPass), []byte(expectedPass)) != 1 {
-				resp.Header().Set("WWW-Authenticate", `Basic realm="booklogger"`)
-				resp.WriteHeader(http.StatusForbidden)
-				_, err := resp.Write([]byte("Unauthorised.\n"))
-				if err != nil {
-					panic(err)
-				}
-			} else {
-				next.ServeHTTP(resp, req)
+		sentUser, sentPass, ok := req.BasicAuth()
+		if !ok || subtle.ConstantTimeCompare([]byte(sentUser), []byte(expectedUser)) != 1 ||
+			subtle.ConstantTimeCompare([]byte(sentPass), []byte(expectedPass)) != 1 {
+			resp.Header().Set("WWW-Authenticate", `Basic realm="booklogger"`)
+			resp.WriteHeader(http.StatusForbidden)
+			_, err := resp.Write([]byte("Unauthorised.\n"))
+			if err != nil {
+				panic(err)
 			}
+		} else {
+			next.ServeHTTP(resp, req)
 		}
 	})
 }
