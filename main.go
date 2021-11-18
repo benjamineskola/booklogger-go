@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	gh "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -37,6 +38,14 @@ func basicAuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func loggingMiddleware(next http.Handler) http.Handler {
+	return gh.CombinedLoggingHandler(os.Stdout, http.HandlerFunc(next.ServeHTTP))
+}
+
+func compressMiddleware(next http.Handler) http.Handler {
+	return gh.CompressHandler(http.HandlerFunc(next.ServeHTTP))
+}
+
 func main() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
@@ -54,12 +63,14 @@ func main() {
 	}
 
 	router := mux.NewRouter()
+	router.Use(loggingMiddleware)
 	router.Use(basicAuthMiddleware)
+	router.Use(compressMiddleware)
 
 	app := handlers.InitApp(router, database)
 	app.AddJSONRoute("/books.json", controllers.BookList)
 	app.AddJSONRoute("/books/{slug}.json", controllers.BookBySlug)
 	app.AddJSONRoute("/authors.json", controllers.AuthorList)
 
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	log.Fatal(http.ListenAndServe(":"+port, gh.RecoveryHandler()(router)))
 }
