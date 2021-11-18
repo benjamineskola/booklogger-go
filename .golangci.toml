@@ -7,4 +7,5 @@ disable = [
     "maligned", # deprecated
     "scopelint", # deprecated
     "exhaustivestruct",
+    "dupl",
   ]

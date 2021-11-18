@@ -37,6 +37,7 @@ func TestAuthor(t *testing.T) { //nolint:paralleltest
 
 	t.Run("get data when nonempty", func(t *testing.T) { //nolint:paralleltest
 		author := *models.NewAuthor("Agatha Christie")
+		author.Slug = "christie-a"
 		result := database.Create(&author)
 		if result.Error != nil {
 			t.Fatal(err)
@@ -45,6 +46,16 @@ func TestAuthor(t *testing.T) { //nolint:paralleltest
 		authors := *storage.GetAllAuthors(database)
 		if len(authors) != 1 {
 			t.Fatal("Books list should be 1, not", len(authors))
+		}
+	})
+
+	t.Run("get data about individual author", func(t *testing.T) { //nolint:paralleltest
+		author, err := storage.GetAuthorBySlug(database, "christie-a")
+		if err != nil {
+			t.Fatal("GetAuthorBySlug should not return an error:", err)
+		}
+		if author.Surname != "Christie" || author.Forenames != "Agatha" {
+			t.Fatal("GetAuthorBySlug should return the right individual")
 		}
 	})
 

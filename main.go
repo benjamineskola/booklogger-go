@@ -71,6 +71,7 @@ func main() {
 	app.AddJSONRoute("/books.json", controllers.BookList)
 	app.AddJSONRoute("/books/{slug}.json", controllers.BookBySlug)
 	app.AddJSONRoute("/authors.json", controllers.AuthorList)
+	app.AddJSONRoute("/authors/{slug}.json", controllers.AuthorBySlug)
 
 	log.Fatal(http.ListenAndServe(":"+port, gh.RecoveryHandler()(router)))
 }

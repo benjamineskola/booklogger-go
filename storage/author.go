@@ -23,3 +23,17 @@ func GetAllAuthors(db *gorm.DB) *[]models.Author {
 
 	return &authors
 }
+
+func GetAuthorBySlug(db *gorm.DB, slug string) (*models.Author, error) {
+	var author models.Author
+
+	result := db.Model(&models.Author{}).
+		Preload(clause.Associations).
+		Where("slug = ?", slug).
+		First(&author)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &author, result.Error
+}
