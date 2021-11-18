@@ -1,14 +1,20 @@
 package controllers
 
 import (
-	h "booklogger/http"
+	"booklogger/handlers"
 	"booklogger/storage"
+	"encoding/json"
 	"net/http"
-
-	"gorm.io/gorm"
 )
 
-func AuthorList(resp http.ResponseWriter, req *http.Request, db *gorm.DB) {
-	authors := storage.GetAllAuthors(db)
-	h.JSONResponse(resp, authors)
+func AuthorList(ctx *handlers.Context) (status int, result []byte) {
+	authors := storage.GetAllAuthors(ctx.App.DB)
+
+	result, err := json.Marshal(authors)
+	if err != nil {
+		result = []byte(err.Error())
+		status = http.StatusInternalServerError
+	}
+
+	return
 }

@@ -1,28 +1,40 @@
 package controllers
 
 import (
-	h "booklogger/http"
+	"booklogger/handlers"
 	"booklogger/storage"
+	"encoding/json"
 	"net/http"
-
-	"github.com/gorilla/mux"
-	"gorm.io/gorm"
 )
 
-func BookList(resp http.ResponseWriter, req *http.Request, db *gorm.DB) {
-	books := storage.GetAllBooks(db)
-	h.JSONResponse(resp, books)
+func BookList(ctx *handlers.Context) (status int, result []byte) {
+	books := storage.GetAllBooks(ctx.App.DB)
+
+	result, err := json.Marshal(books)
+	if err != nil {
+		result = []byte(err.Error())
+		status = http.StatusInternalServerError
+	}
+
+	return
 }
 
-func BookBySlug(resp http.ResponseWriter, req *http.Request, database *gorm.DB) {
-	if slug := mux.Vars(req)["slug"]; slug != "" {
-		book, err := storage.GetBookBySlug(database, slug)
-		if err == nil {
-			h.JSONResponse(resp, book)
-		} else {
-			h.JSONError(resp, http.StatusNotFound, err.Error())
+func BookBySlug(ctx *handlers.Context) (status int, result []byte) {
+	slug := ctx.Vars["slug"]
+	book, err := storage.GetBookBySlug(ctx.App.DB, slug)
+
+	if err == nil {
+		var jsonErr error
+		result, jsonErr = json.Marshal(book)
+
+		if jsonErr != nil {
+			result = []byte(jsonErr.Error())
+			status = http.StatusInternalServerError
 		}
 	} else {
-		h.JSONError(resp, http.StatusBadRequest, "no slug given")
+		result = []byte(err.Error())
+		status = http.StatusNotFound
 	}
+
+	return
 }

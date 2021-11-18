@@ -2,6 +2,7 @@ package main
 
 import (
 	"booklogger/controllers"
+	"booklogger/handlers"
 	"crypto/subtle"
 	"log"
 	"net/http"
@@ -55,16 +56,10 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(basicAuthMiddleware)
 
-	router.HandleFunc(
-		"/books.json",
-		func(w http.ResponseWriter, r *http.Request) { controllers.BookList(w, r, database) },
-	)
-	router.HandleFunc(
-		"/books/{slug}.json",
-		func(w http.ResponseWriter, r *http.Request) { controllers.BookBySlug(w, r, database) },
-	)
-	router.HandleFunc("/authors.json",
-		func(w http.ResponseWriter, r *http.Request) { controllers.AuthorList(w, r, database) },
-	)
+	app := handlers.InitApp(router, database)
+	app.AddJSONRoute("/books.json", controllers.BookList)
+	app.AddJSONRoute("/books/{slug}.json", controllers.BookBySlug)
+	app.AddJSONRoute("/authors.json", controllers.AuthorList)
+
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
