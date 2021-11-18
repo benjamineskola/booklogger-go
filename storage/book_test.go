@@ -13,7 +13,9 @@ import (
 func TestBook(t *testing.T) { //nolint:cyclop,funlen,paralleltest
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "host=localhost user=ben dbname=ben_test port=5432 sslmode=disable"
+		dsn = os.ExpandEnv(
+			"host=localhost user=$USER dbname=${USER}_test port=5432 sslmode=disable",
+		)
 	}
 
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})

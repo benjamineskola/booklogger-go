@@ -40,7 +40,7 @@ func basicAuthMiddleware(next http.Handler) http.Handler {
 func main() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "host=localhost user=ben dbname=ben port=5432 sslmode=disable"
+		dsn = os.ExpandEnv("host=localhost user=$USER dbname=$USER port=5432 sslmode=disable")
 	}
 
 	port, ok := os.LookupEnv("PORT")
