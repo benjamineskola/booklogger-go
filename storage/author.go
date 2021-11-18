@@ -7,9 +7,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func GetAllAuthors(db *gorm.DB) *[]models.Author {
-	var authors []models.Author
-
+func GetAllAuthors(db *gorm.DB) (authors *[]models.Author, err error) {
 	result := db.Model(&models.Author{}).
 		Preload(clause.Associations).
 		Preload("FirstAuthoredBooks.FirstAuthor").
@@ -17,11 +15,11 @@ func GetAllAuthors(db *gorm.DB) *[]models.Author {
 		Preload("AdditionalAuthoredBooks.FirstAuthor").
 		// Preload("AdditionalAuthoredBooks.AdditionalAuthors").
 		Find(&authors)
-	if result.Error != nil {
-		panic(result.Error)
+	if result.Error != nil { // notest
+		err = result.Error
 	}
 
-	return &authors
+	return
 }
 
 func GetAuthorBySlug(db *gorm.DB, slug string) (*models.Author, error) {

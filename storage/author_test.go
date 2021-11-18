@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestAuthor(t *testing.T) { //nolint:paralleltest
+func TestAuthor(t *testing.T) { //nolint:cyclop,paralleltest
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		dsn = os.ExpandEnv(
@@ -29,9 +29,12 @@ func TestAuthor(t *testing.T) { //nolint:paralleltest
 	}
 
 	t.Run("get data when empty", func(t *testing.T) { //nolint:paralleltest
-		books := *storage.GetAllAuthors(database)
-		if len(books) != 0 {
-			t.Fatal("Authors list should be empty, not", len(books), books)
+		authors, err := storage.GetAllAuthors(database)
+		if err != nil {
+			t.Fatal("GetAllAuthors returned an error:", err)
+		}
+		if len(*authors) != 0 {
+			t.Fatal("Authors list should be empty, not", len(*authors), authors)
 		}
 	})
 
@@ -43,9 +46,12 @@ func TestAuthor(t *testing.T) { //nolint:paralleltest
 			t.Fatal(err)
 		}
 
-		authors := *storage.GetAllAuthors(database)
-		if len(authors) != 1 {
-			t.Fatal("Books list should be 1, not", len(authors))
+		authors, err := storage.GetAllAuthors(database)
+		if err != nil {
+			t.Fatal("GetAllAuthors returned an error:", err)
+		}
+		if len(*authors) != 1 {
+			t.Fatal("Books list should be 1, not", len(*authors))
 		}
 	})
 
