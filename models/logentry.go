@@ -5,6 +5,7 @@ import (
 )
 
 type LogEntry struct {
+	ID                 uint
 	BookID             uint
 	Book               Book
 	StartDate          *time.Time

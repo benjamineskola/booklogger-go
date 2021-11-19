@@ -5,12 +5,13 @@ import (
 	"booklogger/storage"
 	"os"
 	"testing"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func TestLogEntry(t *testing.T) { //nolint:paralleltest
+func TestLogEntry(t *testing.T) { //nolint:cyclop,funlen,paralleltest
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		dsn = os.ExpandEnv(
@@ -39,7 +40,7 @@ func TestLogEntry(t *testing.T) { //nolint:paralleltest
 		author := *models.NewAuthor("Agatha Christie")
 		result := database.Create(&author)
 		if result.Error != nil {
-			t.Fatal(err)
+			t.Fatal(result.Error)
 		}
 
 		book := models.NewBook("The Mysterious Affair at Styles")
@@ -47,7 +48,7 @@ func TestLogEntry(t *testing.T) { //nolint:paralleltest
 		book.Slug = "christie-mysterious-affair-styles"
 		result = database.Create(book)
 		if result.Error != nil {
-			t.Fatal(err)
+			t.Fatal(result.Error)
 		}
 
 		book, _ = storage.GetBookBySlug(database, "christie-mysterious-affair-styles")
@@ -55,12 +56,41 @@ func TestLogEntry(t *testing.T) { //nolint:paralleltest
 		entry := models.LogEntry{Book: *book}
 		result = database.Create(&entry)
 		if result.Error != nil {
-			t.Fatal(err)
+			t.Fatal(result.Error)
 		}
 
 		entries, _ := storage.GetAllLogEntries(database)
 		if len(*entries) != 1 {
-			t.Fatal("Logentries list should be empty, not", len(*entries), entries)
+			t.Fatal("Logentries list should have 1 item, not", len(*entries), entries)
+		}
+	})
+
+	t.Run("get item by year", func(t *testing.T) { //nolint:paralleltest
+		allEntries, _ := storage.GetAllLogEntries(database)
+		entry := (*allEntries)[0]
+		start, _ := time.Parse(time.RFC3339, "2012-11-01T22:08:41+00:00")
+		entry.StartAt(&start)
+		entry.EndNow()
+		database.Save(&entry)
+
+		year := time.Now().Year()
+
+		currentEntries, err := storage.GetLogEntriesByYear(database, year)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(*currentEntries) != 1 {
+			t.Fatal("Logentries list should have 1 item, not", len(*currentEntries), currentEntries)
+		}
+
+		prevEntries, err := storage.GetLogEntriesByYear(database, year-1)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(*prevEntries) != 0 {
+			t.Fatal("Logentries list should have no items, not", len(*prevEntries), prevEntries)
 		}
 	})
 
