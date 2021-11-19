@@ -8,13 +8,10 @@ import (
 )
 
 func GetAllLogEntries(db *gorm.DB) (logentries *[]models.LogEntry, err error) {
-	result := db.Model(&models.LogEntry{}).
+	err = db.Model(&models.LogEntry{}).
 		Preload(clause.Associations).
 		Preload("Book.FirstAuthor").
-		Find(&logentries)
-	if result.Error != nil { // notest
-		err = result.Error
-	}
+		Find(&logentries).Error
 
 	return
 }

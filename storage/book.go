@@ -7,27 +7,17 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func GetAllBooks(db *gorm.DB) *[]models.Book {
-	var books []models.Book
+func GetAllBooks(db *gorm.DB) (books *[]models.Book, err error) {
+	err = db.Model(&models.Book{}).Preload(clause.Associations).Find(&books).Error
 
-	result := db.Model(&models.Book{}).Preload(clause.Associations).Find(&books)
-	if result.Error != nil {
-		panic(result.Error)
-	}
-
-	return &books
+	return
 }
 
-func GetBookBySlug(db *gorm.DB, slug string) (*models.Book, error) {
-	var book models.Book
-
-	result := db.Model(&models.Book{}).
+func GetBookBySlug(db *gorm.DB, slug string) (book *models.Book, err error) {
+	err = db.Model(&models.Book{}).
 		Preload(clause.Associations).
 		Where("slug = ?", slug).
-		First(&book)
-	if result.Error != nil {
-		return nil, result.Error
-	}
+		First(&book).Error
 
-	return &book, result.Error
+	return
 }

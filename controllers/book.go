@@ -8,11 +8,16 @@ import (
 )
 
 func BookList(ctx *handlers.Context) (status int, result []byte) {
-	books := storage.GetAllBooks(ctx.App.DB)
+	books, err := storage.GetAllBooks(ctx.App.DB)
 
-	result, err := json.Marshal(books)
-	if err != nil {
-		result = []byte(err.Error())
+	if err == nil {
+		result, err = json.Marshal(books)
+		if err != nil {
+			result = []byte(err.Error())
+			status = http.StatusInternalServerError
+		}
+	} else {
+		result, _ = json.Marshal([]byte(err.Error()))
 		status = http.StatusInternalServerError
 	}
 

@@ -29,9 +29,12 @@ func TestBook(t *testing.T) { //nolint:cyclop,funlen,paralleltest
 	}
 
 	t.Run("get data when empty", func(t *testing.T) { //nolint:paralleltest
-		books := *storage.GetAllBooks(database)
-		if len(books) != 0 {
-			t.Fatal("Books list should be empty, not", len(books), books)
+		books, err := storage.GetAllBooks(database)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(*books) != 0 {
+			t.Fatal("Books list should be empty, not", len(*books), books)
 		}
 	})
 
@@ -39,7 +42,7 @@ func TestBook(t *testing.T) { //nolint:cyclop,funlen,paralleltest
 		author := *models.NewAuthor("Agatha Christie")
 		result := database.Create(&author)
 		if result.Error != nil {
-			t.Fatal(err)
+			t.Fatal(result.Error)
 		}
 
 		book1 := *models.NewBook("The Mysterious Affair at Styles")
@@ -47,19 +50,22 @@ func TestBook(t *testing.T) { //nolint:cyclop,funlen,paralleltest
 		book1.Slug = "christie-mysterious-affair-styles"
 		result = database.Create(&book1)
 		if result.Error != nil {
-			t.Fatal(err)
+			t.Fatal(result.Error)
 		}
 
 		book2 := *models.NewBook("Murder at the Vicarage")
 		book2.FirstAuthor = author
 		result = database.Create(&book2)
 		if result.Error != nil {
-			t.Fatal(err)
+			t.Fatal(result.Error)
 		}
 
-		books := *storage.GetAllBooks(database)
-		if len(books) != 2 {
-			t.Fatal("Books list should be 2, not", len(books))
+		books, err := storage.GetAllBooks(database)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(*books) != 2 {
+			t.Fatal("Books list should be 2, not", len(*books))
 		}
 	})
 
