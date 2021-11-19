@@ -5,98 +5,85 @@ import (
 	"testing"
 )
 
-func TestCreateAuthor(t *testing.T) { //nolint:cyclop
+func TestCreateAuthor(t *testing.T) {
 	t.Parallel()
-	t.Run("Creating an author parses the name out", func(t *testing.T) {
-		t.Parallel()
-		author := models.NewAuthor("Karl Marx")
-		if author.Surname != "Marx" {
-			t.Fatal("surname not set")
-		}
-		if author.Forenames != "Karl" {
-			t.Fatal("forenames not set")
-		}
-	})
 
-	t.Run("Creating an author parses the name out including middle names", func(t *testing.T) {
-		t.Parallel()
-		author := models.NewAuthor("Karl Heinrich Marx")
-		if author.Surname != "Marx" {
-			t.Fatal("surname not set")
-		}
-		if author.Forenames != "Karl Heinrich" {
-			t.Fatal("forenames not set")
-		}
-	})
+	tests := []struct {
+		input     string
+		surname   string
+		forenames string
+	}{
+		{"Karl Marx", "Marx", "Karl"},
+		{"Karl Heinrich Marx", "Marx", "Karl Heinrich"},
+		{"Ursula K. le Guin", "le Guin", "Ursula K."},
+		{"Ursula K. Le Guin", "Le Guin", "Ursula K."},
+		{"Miguel A. de la Torre", "de la Torre", "Miguel A."},
+		{"J.R.R. Tolkien", "Tolkien", "J.R.R."},
+		{"J. R. R. Tolkien", "Tolkien", "J.R.R."},
+		{"George R.R. Martin", "Martin", "George R.R."},
+		{"George R. R. Martin", "Martin", "George R.R."},
+	}
 
-	t.Run("Surname prefixes are included in the surname", func(t *testing.T) {
-		t.Parallel()
-		author := models.NewAuthor("Ursula K. le Guin")
-		if author.Surname != "le Guin" {
-			t.Fatal("surname not set")
-		}
-		if author.Forenames != "Ursula K." {
-			t.Fatal("forenames not set")
-		}
-	})
+	for _, test := range tests {
+		test := test
+		t.Run(test.input, func(t *testing.T) {
+			t.Parallel()
+			author := models.NewAuthor(test.input)
 
-	t.Run("A surname can have multiple prefixes", func(t *testing.T) {
-		t.Parallel()
-		author := models.NewAuthor("Miguel A. de la Torre")
-		if author.Surname != "de la Torre" {
-			t.Fatal("surname not set correctly")
-		}
-		if author.Forenames != "Miguel A." {
-			t.Fatal("forenames not set correctly")
-		}
-	})
+			if author.Surname != test.surname {
+				t.Errorf(
+					"Wrong surname for “%s” (expected: “%s”; got: “%s”)",
+					test.input,
+					test.surname,
+					author.Surname,
+				)
+			}
 
-	t.Run("Names presented as initials are normalised", func(t *testing.T) {
-		t.Parallel()
-		author := models.NewAuthor("J. R. R. Tolkien")
-		if author.Forenames != "J.R.R." {
-			t.Fatal("forenames divided incorrectly")
-		}
-		author = models.NewAuthor("George R. R. Martin")
-		if author.Forenames != "George R.R." {
-			t.Fatal("forenames divided incorrectly")
-		}
-	})
+			if author.Forenames != test.forenames {
+				t.Errorf(
+					"Wrong forenames for “%s” (expected: “%s”; got: “%s”)",
+					test.input,
+					test.forenames,
+					author.Forenames,
+				)
+			}
+		})
+	}
 }
 
 func TestDisplayAuthor(t *testing.T) {
 	t.Parallel()
-	t.Run("Author can be represented as string", func(t *testing.T) {
-		t.Parallel()
-		tolkien := "J.R.R. Tolkien"
-		author := models.NewAuthor(tolkien)
-		if author.DisplayName() != tolkien {
-			t.Fatal("name represented incorrectly:", author.DisplayName())
-		}
-		if author.String() != tolkien {
-			t.Fatal("name represented incorrectly:", author.String())
-		}
 
-		author.Forenames = "John Ronald Reuel"
-		author.PreferredForenames = "J.R.R."
-		if author.DisplayName() != tolkien {
-			t.Fatal(
-				"name represented incorrectly when preferred forenames are set:",
-				author.DisplayName(),
-			)
-		}
-
-		author2 := models.Author{}
-		author2.Surname = "Mao"
-		author2.Forenames = "Zedong"
-		author2.SurnameFirst = true
-		if author2.DisplayName() != "Mao Zedong" {
-			t.Fatal("name represented incorrectly:", author2.DisplayName())
-		}
-
-		author3 := models.NewAuthor("Apple")
-		if author3.DisplayName() != "Apple" {
-			t.Fatal("name represented incorrectly:", author3.DisplayName())
-		}
-	})
+	tests := []struct {
+		name     string
+		author   models.Author
+		expected string
+	}{
+		{"with initials", models.Author{Surname: "Tolkien", Forenames: "J.R.R."}, "J.R.R. Tolkien"},
+		{
+			"with preferred name",
+			models.Author{
+				Surname:            "Tolkien",
+				PreferredForenames: "J.R.R.",
+				Forenames:          "John Ronald Reuel",
+			},
+			"J.R.R. Tolkien",
+		},
+		{
+			"surname first",
+			models.Author{Surname: "Mao", Forenames: "Zedong", SurnameFirst: true},
+			"Mao Zedong",
+		},
+		{"single name", models.Author{Surname: "Apple"}, "Apple"},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			actual := test.author.String()
+			if actual != test.expected {
+				t.Fatalf("expected: %s; got: %s", test.expected, actual)
+			}
+		})
+	}
 }

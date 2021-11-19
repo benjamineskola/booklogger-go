@@ -42,7 +42,7 @@ func NewAuthor(name string) *Author {
 
 	for i := len(words); i > 0; i-- {
 		word := words[len(words)-i]
-		_, inPrefixes := prefixes[word]
+		_, inPrefixes := prefixes[strings.ToLower(word)]
 
 		if inPrefixes {
 			surname, words = words[len(words)-1]+" "+surname, words[:len(words)-1]
