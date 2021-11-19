@@ -63,3 +63,40 @@ func TestCreateAuthor(t *testing.T) { //nolint:cyclop
 		}
 	})
 }
+
+func TestDisplayAuthor(t *testing.T) {
+	t.Parallel()
+	t.Run("Author can be represented as string", func(t *testing.T) {
+		t.Parallel()
+		tolkien := "J.R.R. Tolkien"
+		author := models.NewAuthor(tolkien)
+		if author.DisplayName() != tolkien {
+			t.Fatal("name represented incorrectly:", author.DisplayName())
+		}
+		if author.String() != tolkien {
+			t.Fatal("name represented incorrectly:", author.String())
+		}
+
+		author.Forenames = "John Ronald Reuel"
+		author.PreferredForenames = "J.R.R."
+		if author.DisplayName() != tolkien {
+			t.Fatal(
+				"name represented incorrectly when preferred forenames are set:",
+				author.DisplayName(),
+			)
+		}
+
+		author2 := models.Author{}
+		author2.Surname = "Mao"
+		author2.Forenames = "Zedong"
+		author2.SurnameFirst = true
+		if author2.DisplayName() != "Mao Zedong" {
+			t.Fatal("name represented incorrectly:", author2.DisplayName())
+		}
+
+		author3 := models.NewAuthor("Apple")
+		if author3.DisplayName() != "Apple" {
+			t.Fatal("name represented incorrectly:", author3.DisplayName())
+		}
+	})
+}

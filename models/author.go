@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 	"time"
 )
@@ -52,4 +53,27 @@ func NewAuthor(name string) *Author {
 		Surname:   surname,
 		Forenames: strings.ReplaceAll(strings.Join(words, " "), ". ", "."),
 	}
+}
+
+func (author Author) String() string {
+	return author.DisplayName()
+}
+
+func (author Author) DisplayName() string {
+	if author.Forenames == "" {
+		return author.Surname
+	}
+
+	var forenames string
+	if author.PreferredForenames != "" {
+		forenames = author.PreferredForenames
+	} else {
+		forenames = author.Forenames
+	}
+
+	if author.SurnameFirst {
+		return fmt.Sprintf("%s %s", author.Surname, forenames)
+	}
+
+	return fmt.Sprintf("%s %s", forenames, author.Surname)
 }
