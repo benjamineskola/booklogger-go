@@ -6,11 +6,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func TestBook(t *testing.T) { //nolint:cyclop,funlen,paralleltest
+func TestBook(t *testing.T) { //nolint:funlen,paralleltest
+	assert := assert.New(t)
+
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		dsn = os.ExpandEnv(
@@ -30,55 +33,39 @@ func TestBook(t *testing.T) { //nolint:cyclop,funlen,paralleltest
 
 	t.Run("get data when empty", func(t *testing.T) { //nolint:paralleltest
 		books, err := storage.GetAllBooks(database)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if len(*books) != 0 {
-			t.Fatal("Books list should be empty, not", len(*books), books)
-		}
+		assert.Nil(err)
+		assert.Len(*books, 0)
 	})
 
 	t.Run("get data when nonempty", func(t *testing.T) { //nolint:paralleltest
 		author := *models.NewAuthor("Agatha Christie")
-		result := database.Create(&author)
-		if result.Error != nil {
-			t.Fatal(result.Error)
-		}
+		err := database.Create(&author).Error
+		assert.Nil(err)
 
 		book1 := *models.NewBook("The Mysterious Affair at Styles")
 		book1.FirstAuthor = author
 		book1.Slug = "christie-mysterious-affair-styles"
-		result = database.Create(&book1)
-		if result.Error != nil {
-			t.Fatal(result.Error)
-		}
+		err = database.Create(&book1).Error
+		assert.Nil(err)
 
 		book2 := *models.NewBook("Murder at the Vicarage")
 		book2.FirstAuthor = author
-		result = database.Create(&book2)
-		if result.Error != nil {
-			t.Fatal(result.Error)
-		}
+		err = database.Create(&book2).Error
+		assert.Nil(err)
 
 		books, err := storage.GetAllBooks(database)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if len(*books) != 2 {
-			t.Fatal("Books list should be 2, not", len(*books))
-		}
+		assert.Nil(err)
+		assert.Len(*books, 2)
 	})
 
 	t.Run("get data for an individual book", func(t *testing.T) { //nolint:paralleltest
-		if _, err := storage.GetBookBySlug(database, "christie-mysterious-affair-styles"); err != nil {
-			t.Fatal(err)
-		}
+		_, err := storage.GetBookBySlug(database, "christie-mysterious-affair-styles")
+		assert.Nil(err)
 	})
 
 	t.Run("error if book does not exist", func(t *testing.T) { //nolint:paralleltest
-		if result, err := storage.GetBookBySlug(database, "no-such-book"); err == nil {
-			t.Fatal("should have returned an error but returned ", result)
-		}
+		result, err := storage.GetBookBySlug(database, "no-such-book")
+		assert.NotNil(err, "should have returned an error but returned "+result.String())
 	})
 
 	t.Cleanup(func() {

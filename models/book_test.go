@@ -3,9 +3,12 @@ package models_test
 import (
 	"booklogger/models"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBook(t *testing.T) {
+	assert := assert.New(t)
 	t.Parallel()
 
 	englishTitle := "Capital"
@@ -51,15 +54,10 @@ func TestBook(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			actual := test.book.String()
-			if actual != test.expected {
-				t.Fatalf("expected: %s; got: %s", test.expected, actual)
-			}
+			assert.Equal(test.expected, actual)
 
 			if test.expectedOriginal != "" {
-				actual = test.book.OriginalTitle()
-				if actual != test.expectedOriginal {
-					t.Fatalf("expected: %s; got: %s", test.expectedOriginal, actual)
-				}
+				assert.Equal(test.expectedOriginal, test.book.OriginalTitle())
 			}
 		})
 	}

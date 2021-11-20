@@ -6,11 +6,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func TestAuthor(t *testing.T) { //nolint:cyclop,paralleltest
+func TestAuthor(t *testing.T) { //nolint:paralleltest
+	assert := assert.New(t)
+
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		dsn = os.ExpandEnv(
@@ -30,39 +33,26 @@ func TestAuthor(t *testing.T) { //nolint:cyclop,paralleltest
 
 	t.Run("get data when empty", func(t *testing.T) { //nolint:paralleltest
 		authors, err := storage.GetAllAuthors(database)
-		if err != nil {
-			t.Fatal("GetAllAuthors returned an error:", err)
-		}
-		if len(*authors) != 0 {
-			t.Fatal("Authors list should be empty, not", len(*authors), authors)
-		}
+		assert.Nil(err)
+		assert.Len(*authors, 0)
 	})
 
 	t.Run("get data when nonempty", func(t *testing.T) { //nolint:paralleltest
 		author := *models.NewAuthor("Agatha Christie")
 		author.Slug = "christie-a"
-		result := database.Create(&author)
-		if result.Error != nil {
-			t.Fatal(err)
-		}
+
+		err := database.Create(&author).Error
+		assert.Nil(err)
 
 		authors, err := storage.GetAllAuthors(database)
-		if err != nil {
-			t.Fatal("GetAllAuthors returned an error:", err)
-		}
-		if len(*authors) != 1 {
-			t.Fatal("Books list should be 1, not", len(*authors))
-		}
+		assert.Nil(err)
+		assert.Len(*authors, 1)
 	})
 
 	t.Run("get data about individual author", func(t *testing.T) { //nolint:paralleltest
 		author, err := storage.GetAuthorBySlug(database, "christie-a")
-		if err != nil {
-			t.Fatal("GetAuthorBySlug should not return an error:", err)
-		}
-		if author.Surname != "Christie" || author.Forenames != "Agatha" {
-			t.Fatal("GetAuthorBySlug should return the right individual")
-		}
+		assert.Nil(err)
+		assert.Equal("Agatha Christie", author.DisplayName())
 	})
 
 	t.Cleanup(func() {

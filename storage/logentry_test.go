@@ -7,11 +7,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func TestLogEntry(t *testing.T) { //nolint:cyclop,funlen,paralleltest
+func TestLogEntry(t *testing.T) { //nolint:funlen,paralleltest
+	assert := assert.New(t)
+
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		dsn = os.ExpandEnv(
@@ -30,39 +33,30 @@ func TestLogEntry(t *testing.T) { //nolint:cyclop,funlen,paralleltest
 	}
 
 	t.Run("get data when empty", func(t *testing.T) { //nolint:paralleltest
-		entries, _ := storage.GetAllLogEntries(database)
-		if len(*entries) != 0 {
-			t.Fatal("Logentries list should be empty, not", len(*entries), entries)
-		}
+		entries, err := storage.GetAllLogEntries(database)
+		assert.Nil(err)
+		assert.Len(*entries, 0)
 	})
 
 	t.Run("get data when nonempty", func(t *testing.T) { //nolint:paralleltest
 		author := *models.NewAuthor("Agatha Christie")
-		result := database.Create(&author)
-		if result.Error != nil {
-			t.Fatal(result.Error)
-		}
+		err := database.Create(&author).Error
+		assert.Nil(err)
 
 		book := models.NewBook("The Mysterious Affair at Styles")
 		book.FirstAuthor = author
 		book.Slug = "christie-mysterious-affair-styles"
-		result = database.Create(book)
-		if result.Error != nil {
-			t.Fatal(result.Error)
-		}
+		err = database.Create(book).Error
+		assert.Nil(err)
 
 		book, _ = storage.GetBookBySlug(database, "christie-mysterious-affair-styles")
 
 		entry := models.LogEntry{Book: *book}
-		result = database.Create(&entry)
-		if result.Error != nil {
-			t.Fatal(result.Error)
-		}
+		err = database.Create(&entry).Error
+		assert.Nil(err)
 
 		entries, _ := storage.GetAllLogEntries(database)
-		if len(*entries) != 1 {
-			t.Fatal("Logentries list should have 1 item, not", len(*entries), entries)
-		}
+		assert.Len(*entries, 1)
 	})
 
 	t.Run("get item by year", func(t *testing.T) { //nolint:paralleltest

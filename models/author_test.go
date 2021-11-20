@@ -3,9 +3,12 @@ package models_test
 import (
 	"booklogger/models"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateAuthor(t *testing.T) {
+	assert := assert.New(t)
 	t.Parallel()
 
 	tests := []struct {
@@ -30,28 +33,14 @@ func TestCreateAuthor(t *testing.T) {
 			t.Parallel()
 			author := models.NewAuthor(test.input)
 
-			if author.Surname != test.surname {
-				t.Errorf(
-					"Wrong surname for “%s” (expected: “%s”; got: “%s”)",
-					test.input,
-					test.surname,
-					author.Surname,
-				)
-			}
-
-			if author.Forenames != test.forenames {
-				t.Errorf(
-					"Wrong forenames for “%s” (expected: “%s”; got: “%s”)",
-					test.input,
-					test.forenames,
-					author.Forenames,
-				)
-			}
+			assert.Equal(test.surname, author.Surname)
+			assert.Equal(test.forenames, author.Forenames)
 		})
 	}
 }
 
 func TestDisplayAuthor(t *testing.T) {
+	assert := assert.New(t)
 	t.Parallel()
 
 	tests := []struct {
@@ -80,10 +69,7 @@ func TestDisplayAuthor(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			actual := test.author.String()
-			if actual != test.expected {
-				t.Fatalf("expected: %s; got: %s", test.expected, actual)
-			}
+			assert.Equal(test.expected, test.author.String(), test.name)
 		})
 	}
 }
