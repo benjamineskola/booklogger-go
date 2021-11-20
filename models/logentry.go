@@ -14,6 +14,9 @@ type LogEntry struct {
 	ProgressPage       uint
 	ProgressDate       time.Time
 	ExcludeFromStats   bool
+
+	ModifiedDate time.Time `gorm:"autoUpdateTime"`
+	CreatedDate  time.Time `gorm:"autoCreateTime"`
 }
 
 func (LogEntry) TableName() string {
