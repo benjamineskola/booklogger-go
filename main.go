@@ -27,7 +27,7 @@ func basicAuthMiddleware(next http.Handler) http.Handler {
 		if !ok || subtle.ConstantTimeCompare([]byte(sentUser), []byte(expectedUser)) != 1 ||
 			subtle.ConstantTimeCompare([]byte(sentPass), []byte(expectedPass)) != 1 {
 			resp.Header().Set("WWW-Authenticate", `Basic realm="booklogger"`)
-			resp.WriteHeader(http.StatusForbidden)
+			resp.WriteHeader(http.StatusUnauthorized)
 			_, err := resp.Write([]byte("Unauthorised.\n"))
 			if err != nil {
 				panic(err)
