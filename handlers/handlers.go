@@ -28,7 +28,11 @@ func (app *App) AddJSONRoute(route string, fun func(*Context) (int, []byte)) {
 			code, result := fun(ctx)
 			if code != 0 {
 				resp.WriteHeader(code)
-				result, _ = json.Marshal(map[string]string{"error": string(result)})
+				var err error
+				result, err = json.Marshal(map[string]string{"error": string(result)})
+				if err != nil {
+					panic(err)
+				}
 			}
 			_, err := resp.Write(result)
 			if err != nil {

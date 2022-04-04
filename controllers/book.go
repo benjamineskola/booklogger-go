@@ -17,7 +17,11 @@ func BookList(ctx *handlers.Context) (status int, result []byte) {
 			status = http.StatusInternalServerError
 		}
 	} else {
-		result, _ = json.Marshal([]byte(err.Error()))
+		var err error
+		result, err = json.Marshal([]byte(err.Error()))
+		if err != nil {
+			panic(err)
+		}
 		status = http.StatusInternalServerError
 	}
 
