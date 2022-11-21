@@ -9,7 +9,7 @@ require (
 	github.com/lib/pq v1.10.2
 	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/postgres v1.3.3
-	gorm.io/gorm v1.23.4
+	gorm.io/gorm v1.24.2
 )
 
 require (
