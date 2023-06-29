@@ -9,7 +9,7 @@ require (
 	github.com/lib/pq v1.10.2
 	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/postgres v1.3.3
-	gorm.io/gorm v1.23.4
+	gorm.io/gorm v1.25.2
 )
 
 require (
@@ -24,7 +24,7 @@ require (
 	github.com/jackc/pgtype v1.10.0 // indirect
 	github.com/jackc/pgx/v4 v4.15.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
